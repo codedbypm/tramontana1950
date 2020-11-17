@@ -1,0 +1,142 @@
+// =========
+// Variables
+// =========
+
+// Colors
+// ======
+
+// Brand color
+// ===========
+
+$theme-colors: (
+  primary: rgb(69, 69, 69),
+  gray-custom: rgb(188, 188, 188),
+  secondary: rgb(30,30,42),
+  success: $green,
+  info: $cyan,
+  warning: $yellow,
+  danger: $red,
+  light: $gray-100,
+  dark: $gray-800
+);
+
+
+// Body
+// ====
+
+$body-color: rgb(133, 133, 133);
+$body-bg: #fbf7ec;
+
+
+// Grid containers
+// ===============
+// Define the maximum width of `.container` for different screen sizes.
+
+$container-max-widths: (
+  sm: 540px,
+  md: 720px,
+  lg: 1440px,
+  xl: 1440px
+) !default;
+@include _assert-ascending($container-max-widths, "$container-max-widths");
+
+
+// Fonts
+// =====
+
+$font-family-sans-serif: 'Source Sans Pro', sans-serif;
+$font-family-base: $font-family-sans-serif;
+
+$headings-font-family: 'Rozha One', serif;
+$headings-font-weight: 400;
+$headings-line-height: 1.42857143;
+$headings-color: theme-color("primary");
+
+$font-size-lg: 1.25rem;
+
+$line-height-base: 1.7;
+
+$text-muted: #ababab;
+
+$link-color: theme-color("primary");
+$link-hover-color: darken($link-color, 5%);
+
+
+// Navbar
+// ======
+
+$navbar-height: 100px;
+
+$navbar-light-bg: transparent;
+$navbar-light-color: $headings-color;
+$navbar-light-hover-color: theme-color("primary");
+$navbar-light-active-color: theme-color("primary");
+$navbar-light-toggler-icon-bg: str-replace(url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='#{$navbar-light-color}' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E"), "#", "%23");
+$navbar-light-toggler-border-color: transparent;
+
+$navbar-dark-bg: transparent;
+$navbar-dark-color: $headings-color;
+$navbar-dark-hover-color: theme-color("primary");
+$navbar-dark-active-color: theme-color("primary");
+$navbar-dark-toggler-icon-bg: str-replace(url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='#{$navbar-dark-color}' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E"), "#", "%23");
+$navbar-dark-toggler-border-color: transparent;
+
+
+// Navs
+// ====
+
+$nav-link-padding-y: 0;
+
+
+// Components
+// ==========
+
+$border-radius: 0;
+$border-radius-lg: $border-radius;
+$border-radius-sm: $border-radius;
+
+
+// Paddings
+// ========
+
+$input-btn-padding-x: 0rem;
+$input-btn-padding-y: 0.5rem;
+
+
+// Buttons
+// =======
+
+$btn-border-radius: $border-radius;
+$btn-transition: color .1s;
+
+$btn-primary-bg: transparent;
+$btn-primary-border: transparent;
+
+
+// Forms
+
+$input-bg: transparent;
+$input-border-color: theme-color("gray-custom");
+$input-color: theme-color("primary");
+
+$input-focus-bg: transparent;
+$input-focus-border-color: theme-color("primary");
+$input-box-shadow: none;
+$input-placeholder-color: theme-color("primary");
+$input-border-radius: 0;
+
+
+// Alerts
+
+$alert-border-radius: $border-radius;
+$alert-padding-y: 1.5rem;
+
+// Tabs
+
+$nav-link-padding-x: 0;
+
+$nav-tabs-border-color: transparent;
+$nav-tabs-link-hover-border-color: transparent;
+$nav-tabs-link-active-color: theme-color("secondary");
+$nav-tabs-link-active-bg: transparent;
+$nav-tabs-link-active-border-color: transparent;
