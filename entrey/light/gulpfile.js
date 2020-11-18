@@ -1,145 +1,169 @@
-var gulp = require('gulp');
+// ************************* Imports *************************
 
-/**
- * WATCH
- */
+const { src, dest, series, parallel, watch } = require('gulp');
 
-// Sass
+// BrowserSync for dev server and hot reloading
+const bs = require('browser-sync').create();
 
-var sass = require('gulp-sass');
-var postcss = require('gulp-postcss');
-var autoprefixer = require('gulp-autoprefixer');
-var wait = require('gulp-wait');
-var csscomb = require('gulp-csscomb');
+const sass = require('gulp-sass');
 
-gulp.task('sass', function() {
-    return gulp.src('app/assets/scss/**/*.scss')
-        .pipe(wait(500))
-        .pipe(sass().on('error', sass.logError))
-        .pipe(postcss([require('postcss-flexbugs-fixes')]))
-        .pipe(autoprefixer({
-            browsers: ['> 1%']
-        }))
-        .pipe(csscomb())
-        .pipe(gulp.dest('app/assets/css'))
-        .pipe(browserSync.reload({
-            stream: true
-        }));
-});
+// Minimize HTML
+const htmlmin = require('gulp-htmlmin');
 
+// Minimize & optimize CSS
+const cleanCSS = require('gulp-clean-css');
 
-// Browser-sync
+// Remove unused/dead CSS
+const purifyCSS = require('gulp-purifycss');
 
-var browserSync = require('browser-sync').create();
+// PostCSS with autoprefixer
+const postCSS = require('gulp-postcss');
 
-gulp.task('browserSync', function() {
-    browserSync.init({
+const autoprefixer = require('gulp-autoprefixer');
+
+// Babel for Gulp
+const babel = require('gulp-babel');
+
+// Minimize JS
+const uglify = require('gulp-uglify');
+
+// Minify images
+const imagemin = require('gulp-imagemin');
+
+// Show sizes of files in the terminal
+const size = require('gulp-size');
+
+// Remove comments from files for production
+const strip = require('gulp-strip-comments');
+
+// Used to wipe contents of dist when running build task
+const del = require('del');
+
+// ************************* Folder Paths *************************
+
+const paths = {
+    input: 'app',
+    output: 'dist',
+    devHTML: 'app/*.html',
+    devCSS: 'app/assets/css',
+    devSCSS: 'app/assets/scss/**/*.scss',
+    devJS: 'app/assets/js/**/*.js',
+    devImages: 'app/assets/img/**/*.{png,gif,jpg,jpeg,svg}',
+    devFavicons: 'app/assets/favicons/**/*.{ico,png,xml,svg,webmanifest}',
+    prodCSS: 'dist/assets/css',
+    prodJS: 'dist/assets/js',
+    prodImages: 'dist/assets/images',
+    normalize: 'app/assets/css/normalize.css',
+};
+
+// ************************* Development Tasks *************************
+
+// Compile Sass to CSS in development
+function serveSass() {
+    return src(paths.devSCSS)
+        .pipe(sass())
+        .pipe(dest(paths.devCSS))
+        .pipe(bs.stream());
+}
+
+// Task to run the BrowserSync server
+function browserSync() {
+    // Run serveSass when starting the dev server to make sure the SCSS & dev CSS are the same
+    serveSass();
+
+    bs.init({
+        // Dev server will run at localhost:8080
+        port: 8080,
         server: {
-            baseDir: 'app'
+            baseDir: paths.input,
         },
-    })
-});
+    });
 
-// Watch
+    watch(paths.devHTML).on('change', bs.reload);
+    watch(paths.devSCSS, serveSass);
+    watch(paths.devJS).on('change', bs.reload);
+}
 
-gulp.task('watch', gulp.series('browserSync', 'sass'), function() {
-    gulp.watch('app/assets/scss/**/*.scss', ['sass']);
-    gulp.watch('app/*.html', browserSync.reload);
-    gulp.watch('app/assets/js/**/*.js', browserSync.reload);
-    gulp.watch('app/assets/img/**/*.svg', browserSync.reload);
-});
+// ************************* Production Tasks *************************
 
+// Wipe contents of dist folder
+function clean() {
+    return del([`${paths.output}/**`, `!${paths.output}`]);
+}
 
-/**
- * BUILD
- */
+// Minimize HTML files
+function buildHTML() {
+    return src(paths.devHTML)
+        .pipe(strip())
+        .pipe(htmlmin({ collapseWhitespace: true, minifyJS: true }))
+        .pipe(size({ showFiles: true }))
+        .pipe(dest(paths.output));
+}
 
-// Delete folders
+// Move favicon files from src to dist if they exist
+function buildFavicon() {
+    return src(paths.devFavicons).pipe(dest(paths.output));
+}
 
-var del = require('del');
+// Minimize CSS files and add prefixes if needed
+function buildCSS() {
+    return src(paths.devSCSS)
+        .pipe(sass())
+        .on('error', sass.logError)
+        .pipe(purifyCSS([paths.devHTML, paths.devJS]))
+        .pipe(cleanCSS())
+        .pipe(postCSS([autoprefixer]))
+        .pipe(size({ showFiles: true }))
+        .pipe(dest(paths.prodCSS));
+}
 
-gulp.task('clean:dist', function(done) {
-    del.sync('dist');
-    done()
-});
+// Move normalize.css from src/css to dist/css
+function buildNormalize() {
+    return src(paths.normalize)
+        .pipe(cleanCSS())
+        .pipe(size({ showFiles: true }))
+        .pipe(dest(paths.prodCSS));
+}
 
-// Concat and optimize JS and CSS files
+// Minimize JavaScript files
+function buildJS() {
+    return src(paths.devJS)
+        .pipe(
+            babel({
+                presets: ['@babel/env'],
+            }),
+        )
+        .pipe(uglify())
+        .pipe(size({ showFiles: true }))
+        .pipe(dest(paths.prodJS));
+}
 
-var gulpIf = require('gulp-if');
-var useref = require('gulp-useref-plus');
-var uglify = require('gulp-uglify');
-var cssnano = require('gulp-cssnano');
-var cache = require('gulp-cache');
-
-gulp.task('useref', function() {
-    return gulp.src('app/*.html')
-        .pipe(useref())
-        .pipe(gulpIf('*.js', uglify()))
-        .pipe(gulpIf('*.css', cssnano()))
-        .pipe(gulp.dest('dist'))
-});
-
-// Optimize images
-
-var imagemin = require('gulp-imagemin');
-
-gulp.task('images', function() {
-    return gulp.src('app/assets/img/**/*.+(png|jpg|gif|svg)')
-        .pipe(cache(imagemin()))
-        .pipe(gulp.dest('dist/assets/img'))
-});
-
-// Copy remaining folders
-
-gulp.task('css', function() {
-    return gulp.src('app/assets/css/**/*')
-        .pipe(gulp.dest('dist/assets/css'))
-});
-
-gulp.task('js', function() {
-    return gulp.src('app/assets/js/**/*')
-        .pipe(gulp.dest('dist/assets/js'))
-});
-
-gulp.task('fonts', function() {
-    return gulp.src('app/assets/fonts/**/*')
-        .pipe(gulp.dest('dist/assets/fonts'))
-});
-
-gulp.task('ico', function() {
-    return gulp.src('app/assets/ico/**/*')
-        .pipe(gulp.dest('dist/assets/ico'))
-});
-
-gulp.task('plugins', function() {
-    return gulp.src('app/assets/plugins/**/*')
-        .pipe(gulp.dest('dist/assets/plugins'))
-});
-
-gulp.task('bootstrap', function() {
-    return gulp.src('app/assets/bootstrap/**/*')
-        .pipe(gulp.dest('dist/assets/bootstrap'))
-});
-
-// Build everything
-
-var runSequence = require('gulp4-run-sequence');
-
-gulp.task('build', function(callback) {
-    runSequence(
-        'clean:dist', ['sass', 'useref', 'css', 'js', 'images', 'fonts', 'ico', 'plugins', 'bootstrap'],
-        callback
-    );
-});
+// Minimize images
+function buildImages() {
+    return src(paths.devImages)
+        .pipe(imagemin())
+        .pipe(size({ showFiles: true }))
+        .pipe(dest(paths.prodImages));
+}
 
 
-/**
- * ACTION BY DEFAULT
- */
+// ************************* Exported Tasks *************************
 
-gulp.task('default', function(callback) {
-    runSequence(
-        ['sass', 'browserSync', 'watch'],
-        callback
-    )
-});
+// Run gulp serve in the terminal to start development mode
+exports.serve = browserSync;
+
+// Run gulp clean to empty dist folder
+exports.clean = clean;
+
+// Run gulp build to run production build
+exports.build = series(
+    clean,
+    parallel(
+        buildHTML,
+        buildFavicon,
+        buildCSS,
+        buildNormalize,
+        buildJS,
+        buildImages,
+    ),
+);
