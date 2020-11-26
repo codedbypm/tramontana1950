@@ -1,0 +1,19 @@
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+
+  <title>{% if page.use-site-title %}{{ site.title }} {{ site.title-separator }} {{ site.description }}{% elsif page.title %}{{ page.title }}{% else %}{{ site.title }}{% endif %}</title>
+
+  {% for css-plugin in layout.css-plugins %}
+    <link rel="stylesheet" href="{{ css-plugin | prepend: site.baseurl }}" />
+  {% endfor %}
+  
+  {% for css in layout.css %}
+    <link rel="stylesheet" href="{{ css | prepend: site.baseurl }}" />
+  {% endfor %}
+
+  {% for js in layout.js %}
+    <script src="{{ js }}" async></script>
+  {% endfor %}
+</head>
