@@ -16,6 +16,8 @@ url: "https://tramontana1950.it"
 
 # Build settings
 theme: minima
+reservation: Prenotazioni
+copyright: Tutti i diritti riservati.
 
 # Exclude from processing.
 # The following items will not be processed, by default.
