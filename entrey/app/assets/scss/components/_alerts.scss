@@ -1,0 +1,33 @@
+/**
+ * Components: Alerts
+ */
+
+.alert {
+	border-width: 2px 0 0 0;
+	color: $body-color;
+	box-shadow: 0 7px 30px 10px fade-out(black, 0.85);
+	background-color: $body-bg;
+	
+	// Contextual classes
+
+	&-danger {
+		border-color: theme-color("danger");
+	}
+	&-success {
+		border-color: theme-color("success");
+	}
+}
+
+#page-alert {
+	position: fixed;
+	top: 0; left: 0; right: 0;
+	width: 100%; max-width: 600px;
+	text-align: center;
+	z-index: 999;
+
+	@include media-breakpoint-up(md) {
+		top: 0;
+		left: 50%; right: auto;
+		transform: translateX(-50%);
+	}
+}
