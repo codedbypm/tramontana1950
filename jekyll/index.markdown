@@ -15,9 +15,9 @@ layout: base
 
             <div class="col-sm-12 col-md-7 col-lg-7 col-xl-6 order-md-1">
 
-                <!-- Navigation -->
                 <nav class="nav nav_links">
                     <a class="nav-link animsition-link" href="menu.html">Menu</a>
+                    <a class="nav-link animsition-link" href="contact.html">Contatti</a>
                 </nav>
 
                 <!-- Heading -->

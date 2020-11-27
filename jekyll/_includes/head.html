@@ -12,8 +12,12 @@
   {% for css in layout.css %}
     <link rel="stylesheet" href="{{ css | prepend: site.baseurl }}" />
   {% endfor %}
+  
+  {% for js in layout.js-remote %}
+    <script src="{{ js }}" defer></script>
+  {% endfor %}
 
   {% for js in layout.js %}
-    <script src="{{ js }}" async></script>
+    <script src="{{ js }}" defer></script>
   {% endfor %}
 </head>
